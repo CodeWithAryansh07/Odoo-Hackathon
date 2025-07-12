@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Question from '../components/Question'
 import { questions } from '../constants'
 
 const QuestionsPage = () => {
     const [activeFilter, setActiveFilter] = useState('all')
     const [sortBy, setSortBy] = useState('latest')
+    const navigate = useNavigate()
 
     // Filter questions based on active filter
     const getFilteredQuestions = () => {
@@ -36,7 +38,10 @@ const QuestionsPage = () => {
                         </p>
                     </div>
                     
-                    <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25 hover:scale-105 font-medium">
+                    <button 
+                        onClick={() => navigate('/ask-a-question')}
+                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25 hover:scale-105 font-medium"
+                    >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
@@ -149,7 +154,10 @@ const QuestionsPage = () => {
                             >
                                 View All Questions
                             </button>
-                            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200">
+                            <button 
+                                onClick={() => navigate('/ask-a-question')}
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200"
+                            >
                                 Ask a Question
                             </button>
                         </div>

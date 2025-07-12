@@ -1,13 +1,28 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Question = ({ question }) => {
     const [isExpanded, setIsExpanded] = useState(false)
     const [votes, setVotes] = useState(question.votes || 0)
     const [userVote, setUserVote] = useState(null) // 'up', 'down', or null
     const isAnswered = !!question.answer
+    const navigate = useNavigate()
 
     const toggleExpanded = () => {
         setIsExpanded(!isExpanded)
+    }
+
+    const handleQuestionClick = () => {
+        navigate(`/question/${question.id}`)
+    }
+
+    // Function to strip HTML and truncate text
+    const getDescriptionPreview = (htmlContent, maxLength = 150) => {
+        if (!htmlContent) return ''
+        const textContent = htmlContent.replace(/<[^>]*>/g, '')
+        return textContent.length > maxLength 
+            ? textContent.substring(0, maxLength) + '...' 
+            : textContent
     }
 
     const handleVote = (voteType) => {
@@ -64,11 +79,20 @@ const Question = ({ question }) => {
                     <div className="flex-1">
                         <div 
                             className="cursor-pointer"
-                            onClick={toggleExpanded}
+                            onClick={handleQuestionClick}
                         >
                             <h3 className="text-xl font-semibold text-slate-100 mb-3 hover:text-blue-400 transition-colors duration-200">
                                 {question.question}
                             </h3>
+
+                            {/* Description Preview */}
+                            {question.description && (
+                                <div className="mb-4">
+                                    <p className="text-slate-300 text-sm leading-relaxed">
+                                        {getDescriptionPreview(question.description)}
+                                    </p>
+                                </div>
+                            )}
                             
                             {/* Meta Information */}
                             <div className="flex items-center gap-4 text-sm text-slate-400 mb-3">
@@ -83,21 +107,30 @@ const Question = ({ question }) => {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    2 hours ago
+                                    {question.timestamp ? new Date(question.timestamp).toLocaleDateString() : '2 hours ago'}
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
-                                    Anonymous User
+                                    {question.author || 'Anonymous User'}
                                 </span>
                             </div>
 
                             {/* Tags */}
                             <div className="flex items-center gap-2 mb-3">
-                                <span className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">odoo</span>
-                                <span className="px-2 py-1 bg-purple-600/20 text-purple-400 rounded text-xs">business</span>
-                                <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">software</span>
+                                {question.tags && question.tags.map((tag, index) => (
+                                    <span key={index} className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
+                                        {tag}
+                                    </span>
+                                ))}
+                                {!question.tags && (
+                                    <>
+                                        <span className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">odoo</span>
+                                        <span className="px-2 py-1 bg-purple-600/20 text-purple-400 rounded text-xs">business</span>
+                                        <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">software</span>
+                                    </>
+                                )}
                             </div>
                         </div>
 

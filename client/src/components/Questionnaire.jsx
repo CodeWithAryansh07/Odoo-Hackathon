@@ -58,7 +58,10 @@ const Questionnaire = () => {
                     </div>
                     <h3 className="text-2xl font-semibold text-slate-300 mb-3">No answered questions yet</h3>
                     <p className="text-slate-400 text-lg mb-6">Be the first to contribute to our knowledge base!</p>
-                    <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200">
+                    <button 
+                        onClick={() => navigate('/ask-a-question')}
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-colors duration-200"
+                    >
                         Ask the First Question
                     </button>
                 </div>

@@ -1,10 +1,21 @@
 import React from 'react'
 import { questions } from '../constants'
+import { useNavigate } from 'react-router-dom'
 
 const Hero = () => {
 
 
     const answeredQuestions = questions.filter(q => q.answer)
+
+    const navigator = useNavigate();
+
+    const handleBrowseAllQuestions = () => {
+        navigator('/questions');
+    }
+
+    const handleAskQuestion = () => {
+        navigator('/ask-a-question');
+    }
 
     return (
         <div className="text-center mb-16">
@@ -33,14 +44,14 @@ const Hero = () => {
 
             {/* Enhanced CTA Buttons */}
             <div className="flex flex-col sm:flex-row justify-center gap-6 mb-16">
-                <button className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-blue-500/30 hover:scale-105 font-semibold text-lg overflow-hidden">
+                <button className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-2xl transition-all duration-300 shadow-2xl hover:shadow-blue-500/30 hover:scale-105 font-semibold text-lg overflow-hidden" onClick={handleAskQuestion}>
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     Ask a Question
                 </button>
-                <button className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-slate-800/50 hover:bg-slate-700/70 backdrop-blur-md border border-slate-600/50 hover:border-slate-500/70 text-slate-200 hover:text-white rounded-2xl transition-all duration-300 shadow-xl hover:shadow-slate-500/20 hover:scale-105 font-semibold text-lg overflow-hidden">
+                <button className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-slate-800/50 hover:bg-slate-700/70 backdrop-blur-md border border-slate-600/50 hover:border-slate-500/70 text-slate-200 hover:text-white rounded-2xl transition-all duration-300 shadow-xl hover:shadow-slate-500/20 hover:scale-105 font-semibold text-lg overflow-hidden" onClick={handleBrowseAllQuestions}>
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-400/0 via-white/10 to-slate-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                     <svg className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
