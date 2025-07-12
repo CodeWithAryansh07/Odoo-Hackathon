@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AnswerRequestDto {
-
     private String content;
     private Long questionId;
 }
