@@ -12,7 +12,19 @@ html.light {
     color-scheme: light;
 }
 
+body, html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+body::-webkit-scrollbar,
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
 body {
+    -webkit-user-select: none;
+    user-select: none;
     background-color: #191e2c;
     color: #f1f5f9;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -21,6 +33,10 @@ body {
 html.light body {
     background-color: #f9fafb;
     color: #111827;
+}
+
+button {
+    cursor: pointer;
 }
 
 /* Custom animations */
@@ -49,7 +65,16 @@ html.light body {
         transform: translateY(0px);
     }
     50% {
-        transform: translateY(-10px);
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes float-slow {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(2deg);
     }
 }
 
@@ -74,6 +99,10 @@ html.light body {
 
 .animate-float {
     animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+    animation: float-slow 4s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
