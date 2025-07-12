@@ -1,5 +1,7 @@
 package com.stackit.controller;
 
+import com.stackit.dtos.LoginRequest;
+import com.stackit.dtos.LoginResponse;
 import com.stackit.dtos.UserDto;
 import com.stackit.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +32,10 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(userService.login(loginRequest));
     }
 }

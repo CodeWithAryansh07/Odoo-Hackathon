@@ -1,12 +1,11 @@
 package com.stackit.service;
 
+import com.stackit.dtos.LoginRequest;
+import com.stackit.dtos.LoginResponse;
 import com.stackit.dtos.UserDto;
 import com.stackit.model.User;
 import com.stackit.repositories.UserRepository;
-import com.stackit.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDto registerUser(UserDto userDto) {
@@ -27,11 +24,10 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Username or Email already exists.");
         }
 
-
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
-                .password(passwordEncoder.encode(userDto.getPassword()))
+                .password(userDto.getPassword()) // ❗no encryption for now
                 .role(userDto.getRole())
                 .status(userDto.getStatus())
                 .provider(userDto.getProvider())
@@ -65,6 +61,28 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .status(user.getStatus())
                 .provider(user.getProvider())
+                .build();
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest loginRequest) {
+        String identifier = loginRequest.getUsernameOrEmail();
+        String password = loginRequest.getPassword();
+
+        User user = userRepository.findByUsername(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
+                .orElseThrow(() -> new RuntimeException("User not found with username/email: " + identifier));
+
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return LoginResponse.builder()
+                .message("Login successful")
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
                 .build();
     }
 }
