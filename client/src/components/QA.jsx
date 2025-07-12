@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { questions } from '../constants'
 
 const QA = () => {
     const { id } = useParams()
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
     const [votes, setVotes] = useState(0)
     const [userVote, setUserVote] = useState(null)
     const [newAnswer, setNewAnswer] = useState('')
@@ -12,6 +13,14 @@ const QA = () => {
     const [comments, setComments] = useState({})
     const [newComment, setNewComment] = useState('')
     const [showCommentForm, setShowCommentForm] = useState(null)
+
+    // Check if we should show the answer form based on URL parameter
+    useEffect(() => {
+        const showForm = searchParams.get('showAnswerForm')
+        if (showForm === 'true') {
+            setShowAnswerForm(true)
+        }
+    }, [searchParams])
 
     // Find the question by ID
     const question = questions.find(q => q.id === parseInt(id))

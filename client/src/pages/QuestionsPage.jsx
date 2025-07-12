@@ -1,24 +1,88 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import Question from '../components/Question'
 import { questions } from '../constants'
 
 const QuestionsPage = () => {
     const [activeFilter, setActiveFilter] = useState('all')
+    const [activeLanguage, setActiveLanguage] = useState('all')
     const [sortBy, setSortBy] = useState('latest')
+    const [searchParams, setSearchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    // Filter questions based on active filter
+    // Popular programming languages with colors
+    const languages = useMemo(() => [
+        { name: 'JavaScript', color: 'bg-yellow-500', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/50' },
+        { name: 'Python', color: 'bg-blue-500', textColor: 'text-blue-400', borderColor: 'border-blue-500/50' },
+        { name: 'Java', color: 'bg-red-500', textColor: 'text-red-400', borderColor: 'border-red-500/50' },
+        { name: 'React', color: 'bg-cyan-500', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/50' },
+        { name: 'Node.js', color: 'bg-green-500', textColor: 'text-green-400', borderColor: 'border-green-500/50' },
+        { name: 'TypeScript', color: 'bg-blue-600', textColor: 'text-blue-400', borderColor: 'border-blue-600/50' },
+        { name: 'PHP', color: 'bg-purple-500', textColor: 'text-purple-400', borderColor: 'border-purple-500/50' },
+        { name: 'C++', color: 'bg-pink-500', textColor: 'text-pink-400', borderColor: 'border-pink-500/50' },
+        { name: 'Rust', color: 'bg-orange-500', textColor: 'text-orange-400', borderColor: 'border-orange-500/50' },
+        { name: 'Go', color: 'bg-teal-500', textColor: 'text-teal-400', borderColor: 'border-teal-500/50' }
+    ], [])
+
+    // Check URL parameters on component mount and when searchParams change
+    useEffect(() => {
+        const tagParam = searchParams.get('tag')
+        if (tagParam) {
+            // Find the matching language (case-insensitive)
+            const matchingLanguage = languages.find(
+                lang => lang.name.toLowerCase() === tagParam.toLowerCase()
+            )
+            if (matchingLanguage) {
+                setActiveLanguage(matchingLanguage.name)
+            } else {
+                // If not in the predefined languages, still set it as active
+                setActiveLanguage(tagParam)
+            }
+        } else {
+            setActiveLanguage('all')
+        }
+    }, [searchParams, languages])
+
+    // Filter questions based on active filter and language
     const getFilteredQuestions = () => {
+        let filtered = questions
+
+        // Filter by status
         switch (activeFilter) {
             case 'answered':
-                return questions.filter(q => q.answer)
+                filtered = filtered.filter(q => q.answer)
+                break
             case 'unanswered':
-                return questions.filter(q => !q.answer)
+                filtered = filtered.filter(q => !q.answer)
+                break
             case 'recent':
-                return questions.slice(0, 10) // Mock recent questions
+                filtered = filtered.slice(0, 10) // Mock recent questions
+                break
             default:
-                return questions
+                break
+        }
+
+        // Filter by language/tag
+        if (activeLanguage !== 'all') {
+            filtered = filtered.filter(q => {
+                if (q.tags) {
+                    return q.tags.some(tag => tag.toLowerCase() === activeLanguage.toLowerCase())
+                }
+                // Fallback to check if language is mentioned in question or description
+                const content = `${q.question} ${q.description || ''}`.toLowerCase()
+                return content.includes(activeLanguage.toLowerCase())
+            })
+        }
+
+        return filtered
+    }
+
+    const handleLanguageFilter = (language) => {
+        setActiveLanguage(language)
+        if (language !== 'all') {
+            setSearchParams({ tag: language })
+        } else {
+            setSearchParams({})
         }
     }
 
@@ -71,64 +135,100 @@ const QuestionsPage = () => {
             </div>
 
             {/* Filters and Sorting */}
-            <div className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-8 p-6 bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl">
-                <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-slate-300 font-semibold">Filter by:</span>
-                    <button 
-                        onClick={() => setActiveFilter('all')}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            activeFilter === 'all' 
-                                ? 'bg-blue-600/30 text-blue-400 border border-blue-500/50' 
-                                : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
-                        }`}
-                    >
-                        All ({questions.length})
-                    </button>
-                    <button 
-                        onClick={() => setActiveFilter('answered')}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            activeFilter === 'answered' 
-                                ? 'bg-green-600/30 text-green-400 border border-green-500/50' 
-                                : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
-                        }`}
-                    >
-                        Answered ({questions.filter(q => q.answer).length})
-                    </button>
-                    <button 
-                        onClick={() => setActiveFilter('unanswered')}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            activeFilter === 'unanswered' 
-                                ? 'bg-yellow-600/30 text-yellow-400 border border-yellow-500/50' 
-                                : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
-                        }`}
-                    >
-                        Unanswered ({questions.filter(q => !q.answer).length})
-                    </button>
-                    <button 
-                        onClick={() => setActiveFilter('recent')}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            activeFilter === 'recent' 
-                                ? 'bg-purple-600/30 text-purple-400 border border-purple-500/50' 
-                                : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
-                        }`}
-                    >
-                        Recent
-                    </button>
+            <div className="space-y-6 mb-8">
+                {/* Status Filters */}
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-6 p-6 bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl">
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-slate-300 font-semibold">Filter by Status:</span>
+                        <button 
+                            onClick={() => setActiveFilter('all')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                activeFilter === 'all' 
+                                    ? 'bg-blue-600/30 text-blue-400 border border-blue-500/50' 
+                                    : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                            }`}
+                        >
+                            All ({questions.length})
+                        </button>
+                        <button 
+                            onClick={() => setActiveFilter('answered')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                activeFilter === 'answered' 
+                                    ? 'bg-green-600/30 text-green-400 border border-green-500/50' 
+                                    : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                            }`}
+                        >
+                            Answered ({questions.filter(q => q.answer).length})
+                        </button>
+                        <button 
+                            onClick={() => setActiveFilter('unanswered')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                activeFilter === 'unanswered' 
+                                    ? 'bg-yellow-600/30 text-yellow-400 border border-yellow-500/50' 
+                                    : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                            }`}
+                        >
+                            Unanswered ({questions.filter(q => !q.answer).length})
+                        </button>
+                        <button 
+                            onClick={() => setActiveFilter('recent')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                activeFilter === 'recent' 
+                                    ? 'bg-purple-600/30 text-purple-400 border border-purple-500/50' 
+                                    : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                            }`}
+                        >
+                            Recent
+                        </button>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                        <span className="text-slate-300 font-semibold">Sort by:</span>
+                        <select 
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="bg-slate-800/50 backdrop-blur-md text-slate-200 border border-slate-600/50 hover:border-slate-500/70 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
+                        >
+                            <option value="latest">Latest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="most-voted">Most Voted</option>
+                            <option value="most-answered">Most Answered</option>
+                            <option value="trending">Trending</option>
+                        </select>
+                    </div>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                    <span className="text-slate-300 font-semibold">Sort by:</span>
-                    <select 
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-slate-800/50 backdrop-blur-md text-slate-200 border border-slate-600/50 hover:border-slate-500/70 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
-                    >
-                        <option value="latest">Latest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="most-voted">Most Voted</option>
-                        <option value="most-answered">Most Answered</option>
-                        <option value="trending">Trending</option>
-                    </select>
+
+                {/* Language/Technology Filters */}
+                <div className="p-6 bg-slate-800/30 backdrop-blur-md border border-slate-700/50 rounded-2xl">
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                        <span className="text-slate-300 font-semibold">Filter by Technology:</span>
+                        <button 
+                            onClick={() => handleLanguageFilter('all')}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                activeLanguage === 'all' 
+                                    ? 'bg-slate-600/50 text-white border border-slate-500/50' 
+                                    : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                            }`}
+                        >
+                            All Technologies
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        {languages.map((lang) => (
+                            <button
+                                key={lang.name}
+                                onClick={() => handleLanguageFilter(lang.name)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                                    activeLanguage === lang.name
+                                        ? `${lang.color}/30 ${lang.textColor} border ${lang.borderColor}` 
+                                        : 'bg-slate-700/30 text-slate-400 hover:bg-slate-600/30 hover:text-slate-300'
+                                }`}
+                            >
+                                <span className={`w-2 h-2 ${lang.color} rounded-full`}></span>
+                                {lang.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 

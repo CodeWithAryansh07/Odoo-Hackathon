@@ -16,6 +16,11 @@ const Question = ({ question }) => {
         navigate(`/question/${question.id}`)
     }
 
+    const handleAnswerClick = (e) => {
+        e.stopPropagation() // Prevent triggering question click
+        navigate(`/question/${question.id}?showAnswerForm=true`)
+    }
+
     // Function to strip HTML and truncate text
     const getDescriptionPreview = (htmlContent, maxLength = 150) => {
         if (!htmlContent) return ''
@@ -145,7 +150,10 @@ const Question = ({ question }) => {
                                 </svg>
                                 {isExpanded ? 'Hide Answer' : 'View Answer'}
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 rounded-lg transition-all duration-200 text-sm">
+                            <button 
+                                onClick={handleAnswerClick}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 rounded-lg transition-all duration-200 text-sm"
+                            >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.227-4.615 5.982 5.982 0 010-6.77A8.001 8.001 0 0121 12z" />
                                 </svg>
